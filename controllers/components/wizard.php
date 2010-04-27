@@ -149,6 +149,8 @@ class WizardComponent extends Object {
 		if (!empty($this->wizardAction)) {
 			$this->wizardAction .= '/';
 		}
+		/* Save original "$this->steps"-Array to reapply in case of (un)branching */
+		$this->_steps = $this->steps;
 
 		$this->steps = $this->_parseSteps($this->steps);
 
@@ -261,6 +263,10 @@ class WizardComponent extends Object {
 		$branches[$name] = $value;
 
 		$this->Session->write($this->_branchKey, $branches);
+		
+		/* Re-trigger the steps-parser and reset the internal array pointer */
+		$this->steps = $this->_parseSteps($this->_steps);
+		$this->_setCurrentStep($this->_currentStep);
 	}
 /**
  * Saves configuration details for use in WizardHelper or returns a config value.
@@ -339,6 +345,10 @@ class WizardComponent extends Object {
  */
 	function unbranch($branch) {
 		$this->Session->del("$this->_branchKey.$branch");
+		
+		/* Re-trigger the steps-parser and reset the internal array pointer */
+		$this->steps = $this->_parseSteps($this->_steps);
+		$this->_setCurrentStep($this->_currentStep);
 	}
 /**
  * Finds the first incomplete step (i.e. step data not saved in Session).
@@ -380,6 +390,8 @@ class WizardComponent extends Object {
 
 		foreach ($steps as $key => $name) {
 			if (is_array($name)) {
+
+				$branch = '';
 				foreach ($name as $branchName => $step) {
 					$branchType = $this->_branchType($branchName);
 
