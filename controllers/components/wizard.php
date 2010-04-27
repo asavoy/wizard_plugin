@@ -25,7 +25,7 @@ class WizardComponent extends Object {
  * @var boolean
  * @access public
  */
-	var $autoAdvance = true;
+	var $autoAdvance = false;
 /**
  * Option to automatically reset if the wizard does not follow "normal"
  * operation. (ie. manual url changing, navigation away and returning, etc.)
