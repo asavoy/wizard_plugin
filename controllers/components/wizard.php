@@ -189,8 +189,12 @@ class WizardComponent extends Object {
 		} else {
 			if ($this->_validStep($step)) {
 				$this->_setCurrentStep($step);
-
-				if (!empty($this->controller->data) && !isset($this->controller->params['form']['Previous'])) {
+				
+				/* Checks whether form was POSTed, but better than !empty($this->controller->data)
+				 * as it does not require any fields in the form */
+				$isPosted = (strtolower(env('REQUEST_METHOD')) == 'post');
+				
+				if ($isPosted && !isset($this->controller->params['form']['Previous'])) {
 					$proceed = false;
 
 					$processCallback = '_' . Inflector::variable('process_' . $this->_currentStep);
@@ -335,7 +339,8 @@ class WizardComponent extends Object {
  * @access public
  */
 	function save() {
-		$this->Session->write("$this->_sessionKey.$this->_currentStep", $this->controller->data);
+		$data = (!empty($this->controller->data)) ? $this->controller->data : true;
+		$this->Session->write("$this->_sessionKey.$this->_currentStep", $data);
 	}
 /**
  * Removes a branch from the steps array.
